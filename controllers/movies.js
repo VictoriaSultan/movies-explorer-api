@@ -7,7 +7,7 @@ const Movie = require('../models/movie');
 
 module.exports.getMovies = (req, res, next) => {
   Movie.find({})
-    .then((movies) => res.status(200).send(movies))
+    .then((movies) => res.send(movies))
     .catch(next);
 };
 
@@ -16,7 +16,7 @@ module.exports.createMovie = (req, res, next) => {
   const owner = req.user._id;
 
   return Movie.create({ name, link, owner })
-    .then((movie) => res.status(200).send(movie))
+    .then((movie) => res.send(movie))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(
