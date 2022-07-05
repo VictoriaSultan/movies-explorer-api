@@ -8,8 +8,8 @@ const { errors } = require('celebrate');
 const routes = require('./routes');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 const { errorHandler } = require('./middlewares/errorHandler');
-
-const { PORT = 3000, MONGODB = 'mongodb://localhost:27017/moviesdb' } = process.env;
+const { limiter } = require('./middlewares/rateLimit');
+const { PORT, MONGODB } = require('./utils/config');
 
 const options = {
   useNewUrlParser: true,
@@ -21,6 +21,7 @@ mongoose.connect(MONGODB, options).catch(() => {
 });
 
 const app = express();
+app.use(limiter);
 app.use(cors());
 app.use(helmet());
 app.use(express.json());
