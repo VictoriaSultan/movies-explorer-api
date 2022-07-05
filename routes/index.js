@@ -6,10 +6,10 @@ const auth = require('../middlewares/auth');
 const { NotFoundError } = require('../utils/errors');
 const { validateSignIn, validateSignUp } = require('../middlewares/validators');
 
+// Все роуты, кроме /signin и /signup, защищены авторизацией
 router.all('/', auth);
 router.post('/signup', validateSignUp, createUser);
 router.post('/signin', validateSignIn, login);
-
 router.use('/users', auth, usersRouter);
 router.use('/movies', auth, moviesRouter);
 
