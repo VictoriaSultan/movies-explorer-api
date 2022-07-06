@@ -31,12 +31,12 @@ module.exports.getCurrentUser = (req, res, next) => {
     .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'CastError') {
-        next(new BadRequestError('Ошибка при запросе.'));
-      } else if (err.message === 'NotFound') {
-        next(new NotFoundError('Пользователь по указанному _id не найден.'));
-      } else {
-        next(err);
+        return next(new BadRequestError('Ошибка при запросе.'));
       }
+      if (err.message === 'NotFound') {
+        return next(new NotFoundError('Пользователь по указанному _id не найден.'));
+      }
+      return next(err);
     });
 };
 
@@ -52,12 +52,12 @@ module.exports.getUserById = (req, res, next) => {
     .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'CastError') {
-        next(new BadRequestError('Ошибка при запросе.'));
-      } else if (err.message === 'NotFound') {
-        next(new NotFoundError('Пользователь по указанному _id не найден.'));
-      } else {
-        next(err);
+        return next(new BadRequestError('Ошибка при запросе.'));
       }
+      if (err.message === 'NotFound') {
+        return next(new NotFoundError('Пользователь по указанному _id не найден.'));
+      }
+      return next(err);
     });
 };
 
@@ -111,15 +111,15 @@ module.exports.updateProfile = (req, res, next) => {
     .then((user) => res.send(user))
     .catch((error) => {
       if (error.name === 'ValidationError') {
-        next(
+        return next(
           new BadRequestError(
             'Переданы некорректные данные при обновлении профиля.',
           ),
         );
-      } else if (error.message === 'Error') {
-        next(new NotFoundError('Пользователя нет в базе'));
-      } else {
-        next(error);
       }
+      if (error.message === 'Error') {
+        return next(new NotFoundError('Пользователя нет в базе'));
+      }
+      return next(error);
     });
 };
