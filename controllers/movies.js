@@ -14,43 +14,35 @@ module.exports.getMovies = (req, res, next) => {
 module.exports.createMovie = (req, res, next) => {
   const { name, link } = req.body;
   const owner = req.user._id;
-
   return Movie.create({ name, link, owner })
     .then((movie) => res.send(movie))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(
+        return next(
           new BadRequestError(
             'Переданы некорректные данные при создании карточки.',
           ),
         );
-      } else {
-        next(err);
       }
+      return next(err);
     });
 };
 
 module.exports.deleteMovie = (req, res, next) => {
   const { movieId } = req.params;
-
-  /* eslint-disable */
   Movie.findById(movieId)
-    .orFail(new Error('Error'))
+    .orFail(() => new NotFoundError('Фильм по данным id не найден'))
     .then((movie) => {
-      if (req.user._id !== movie.owner.toString()) {
-        return next(new ForbiddenError('Чужую карточку нельзя удалить.'));
-      } else {
-        return Movie.deleteOne(movie).then(() => { res.send({ message: `Карточка с id ${movie.id} успешно удалена!` }); });
+      if (!movie.owner.equals(req.user._id)) {
+        return next(new ForbiddenError('Чужой фильм нельзя удалить'));
       }
+      return movie.remove()
+        .then(() => res.send({ message: 'Фильм успешно удален', movie }));
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        next(new BadRequestError('Ошибка в запросе.'));
-      } else if (err.message === 'Error') {
-        next(new NotFoundError('Карточка с указанным _id не найдена.'));
-      } else {
-        next(err);
+        return next(new BadRequestError('Ошибка в запросе.'));
       }
+      return next(err);
     });
-    /* eslint-enable */
 };
