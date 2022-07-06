@@ -11,8 +11,17 @@ const isURL = (v) => {
 
 module.exports.validateCreateMovie = celebrate({
   body: Joi.object().keys({
-    name: Joi.string().required().min(2).max(30),
-    link: Joi.string().required().custom(isURL),
+    country: Joi.string().required(),
+    director: Joi.string().required(),
+    duration: Joi.number().required(),
+    year: Joi.string().required(),
+    description: Joi.string().required(),
+    image: Joi.string().required().custom(isURL),
+    trailerLink: Joi.string().required().custom(isURL),
+    thumbnail: Joi.string().required().custom(isURL),
+    movieId: Joi.number().required(),
+    nameRU: Joi.string().required(),
+    nameEN: Joi.string().required(),
   }),
 });
 
