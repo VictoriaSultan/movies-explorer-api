@@ -1,12 +1,13 @@
 const { Joi, celebrate } = require('celebrate');
 const validator = require('validator');
+const { ERROR_WRONG_URL_MESSAGE } = require('../utils/constants');
 
 const isURL = (v) => {
   const result = validator.isURL(v, { require_protocol: true });
   if (result) {
     return v;
   }
-  throw new Error('Неверный формат ссылки.');
+  throw new Error(ERROR_WRONG_URL_MESSAGE);
 };
 
 module.exports.validateCreateMovie = celebrate({
@@ -48,7 +49,7 @@ module.exports.validateSignUp = celebrate({
   body: Joi.object().keys({
     email: Joi.string().required().email(),
     password: Joi.string().required(),
-    name: Joi.string().min(2).max(30),
+    name: Joi.string().required().min(2).max(30),
   }),
 });
 

@@ -6,15 +6,15 @@ const auth = require('../middlewares/auth');
 const { NotFoundError } = require('../utils/errors');
 const { validateSignIn, validateSignUp } = require('../middlewares/validators');
 
-// Все роуты, кроме /signin и /signup, защищены авторизацией
-router.all('/', auth);
+const { ERROR_NOT_FOUND_STATUS_MESSAGE } = require('../utils/constants');
+
 router.post('/signup', validateSignUp, createUser);
 router.post('/signin', validateSignIn, login);
-router.use('/users', auth, usersRouter);
-router.use('/movies', auth, moviesRouter);
-
+router.all(auth);
+router.use('/users', usersRouter);
+router.use('/movies', moviesRouter);
 router.all('/*', () => {
-  throw new NotFoundError('Запрашиваемый ресурс не найден');
+  throw new NotFoundError(ERROR_NOT_FOUND_STATUS_MESSAGE);
 });
 
 module.exports = router;

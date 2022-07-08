@@ -21,6 +21,7 @@ mongoose.connect(MONGODB, options).catch(() => {
 });
 
 const app = express();
+app.use(requestLogger);
 app.use(limiter);
 app.use(cors());
 app.use(helmet());
@@ -31,7 +32,6 @@ app.use(
   }),
 );
 app.use(cookieParser());
-app.use(requestLogger);
 app.use(routes);
 app.use(errorLogger);
 app.use(errors());

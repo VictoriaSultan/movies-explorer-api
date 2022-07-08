@@ -7,6 +7,14 @@ const {
   NotFoundError,
   UnauthorizedError,
 } = require('../utils/errors');
+const {
+  ERROR_CONFLICT_STATUS_MESSAGE,
+  ERROR_WRONG_USER_DATA_CREATE_STATUS_MESSAGE,
+  ERROR_WRONG_USER_DATA_UPDATE_STATUS_MESSAGE,
+  ERROR_REQUEST_MESSAGE,
+  ERROR_WRONG_EMAIL_OR_PASSWORD_MESSAGE,
+  ERROR_USER_NOT_EXIST_MESSAGE,
+} = require('../utils/constants');
 const { JWT_SECRET } = require('../utils/config');
 
 module.exports.login = (req, res, next) => {
@@ -20,7 +28,7 @@ module.exports.login = (req, res, next) => {
       res.send({ token });
     })
     .catch(() => {
-      throw new UnauthorizedError('Неправильная почта или пароль');
+      throw new UnauthorizedError(ERROR_WRONG_EMAIL_OR_PASSWORD_MESSAGE);
     })
     .catch(next);
 };
@@ -31,10 +39,10 @@ module.exports.getCurrentUser = (req, res, next) => {
     .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'CastError') {
-        return next(new BadRequestError('Ошибка при запросе.'));
+        return next(new BadRequestError(ERROR_REQUEST_MESSAGE));
       }
       if (err.message === 'NotFound') {
-        return next(new NotFoundError('Пользователь по указанному _id не найден.'));
+        return next(new NotFoundError(ERROR_USER_NOT_EXIST_MESSAGE));
       }
       return next(err);
     });
@@ -52,10 +60,10 @@ module.exports.getUserById = (req, res, next) => {
     .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'CastError') {
-        return next(new BadRequestError('Ошибка при запросе.'));
+        return next(new BadRequestError(ERROR_REQUEST_MESSAGE));
       }
       if (err.message === 'NotFound') {
-        return next(new NotFoundError('Пользователь по указанному _id не найден.'));
+        return next(new NotFoundError(ERROR_USER_NOT_EXIST_MESSAGE));
       }
       return next(err);
     });
@@ -69,7 +77,7 @@ module.exports.createUser = (req, res, next) => {
   User.findOne({ email })
     .then((usr) => {
       if (usr) {
-        throw new ConflictError('Пользователь с таким email уже существует');
+        throw new ConflictError(ERROR_CONFLICT_STATUS_MESSAGE);
       } else {
         bcrypt
           .hash(password, 10)
@@ -83,13 +91,13 @@ module.exports.createUser = (req, res, next) => {
             if (error.name === 'ValidationError') {
               return next(
                 new BadRequestError(
-                  'Переданы некорректные данные при создании пользователя.',
+                  ERROR_WRONG_USER_DATA_CREATE_STATUS_MESSAGE,
                 ),
               );
             }
             if (error.name === 'MongoError' && error.code === 11000) {
               return next(
-                new ConflictError('Пользователь с таким email уже существует.'),
+                new ConflictError(ERROR_CONFLICT_STATUS_MESSAGE),
               );
             }
             return next(error);
@@ -113,12 +121,15 @@ module.exports.updateProfile = (req, res, next) => {
       if (error.name === 'ValidationError') {
         return next(
           new BadRequestError(
-            'Переданы некорректные данные при обновлении профиля.',
+            ERROR_WRONG_USER_DATA_UPDATE_STATUS_MESSAGE,
           ),
         );
       }
+      if (error.code === 11000) {
+        throw new ConflictError(ERROR_CONFLICT_STATUS_MESSAGE);
+      }
       if (error.message === 'Error') {
-        return next(new NotFoundError('Пользователя нет в базе'));
+        return next(new NotFoundError(ERROR_USER_NOT_EXIST_MESSAGE));
       }
       return next(error);
     });

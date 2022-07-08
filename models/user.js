@@ -1,6 +1,7 @@
 const bcrypt = require('bcryptjs');
 const mongoose = require('mongoose');
 const isEmail = require('validator/lib/isEmail');
+const { ERROR_WRONG_EMAIL_MESSAGE, ERROR_WRONG_EMAIL_OR_PASSWORD_MESSAGE, ERROR_USER_NOT_EXIST_MESSAGE } = require('../utils/constants');
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -15,7 +16,7 @@ const userSchema = new mongoose.Schema({
     unique: true,
     validate: {
       validator: (v) => isEmail(v),
-      message: 'Неправильный формат почты',
+      message: ERROR_WRONG_EMAIL_MESSAGE,
     },
   },
   password: {
@@ -38,11 +39,11 @@ userSchema.statics.findUserByCredentials = function findUserByCredentials(email,
     .select('+password')
     .then((user) => {
       if (!user) {
-        return Promise.reject(new Error('Такого пользователя не существует'));
+        return Promise.reject(new Error(ERROR_USER_NOT_EXIST_MESSAGE));
       }
       return bcrypt.compare(password, user.password).then((matched) => {
         if (!matched) {
-          return Promise.reject(new Error('Неправильные почта или пароль'));
+          return Promise.reject(new Error(ERROR_WRONG_EMAIL_OR_PASSWORD_MESSAGE));
         }
         return user;
       });
