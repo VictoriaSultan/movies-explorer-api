@@ -10,7 +10,7 @@ const { ERROR_NOT_FOUND_STATUS_MESSAGE } = require('../utils/constants');
 
 router.post('/signup', validateSignUp, createUser);
 router.post('/signin', validateSignIn, login);
-router.all(auth);
+router.use(auth);
 router.use('/users', usersRouter);
 router.use('/movies', moviesRouter);
 router.all('/*', () => {

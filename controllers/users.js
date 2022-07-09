@@ -126,7 +126,9 @@ module.exports.updateProfile = (req, res, next) => {
         );
       }
       if (error.code === 11000) {
-        throw new ConflictError(ERROR_CONFLICT_STATUS_MESSAGE);
+        return next(
+          new ConflictError(ERROR_CONFLICT_STATUS_MESSAGE),
+        );
       }
       if (error.message === 'Error') {
         return next(new NotFoundError(ERROR_USER_NOT_EXIST_MESSAGE));
